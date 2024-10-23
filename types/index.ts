@@ -1,71 +1,45 @@
-export interface PricingModel {
-  basePrice: {
-    sedan: number
-    suv: number
-    truck: number
-    van: number
-    sports: number
-    luxury: number
-  }
-  surcharges: {
-    luxurySurcharge: number
-    filthinessFactor: number
-  }
-  services: {
-    [key: string]: {
-      name: string
-      price: number
-      enabled: boolean
-    }
-  }
-  laborCost: number
-  materialCost: number
-}
+import { Id } from "../convex/_generated/dataModel";
 
-export interface PredictivePricingInsights {
-  recommendations: string[]
-  trendAnalysis: {
-    [key: string]: {
-      trend: 'increasing' | 'decreasing' | 'stable'
-      suggestion: string
-    }
-  }
-}
-
-export interface PricingAccuracy {
-  accuracy: number
-  totalAssessments: number
-  accurateAssessments: number
-}
+export type VehicleType = "sedan" | "suv" | "truck" | "van" | "sports" | "luxury";
 
 export interface Assessment {
-  id: string
-  images: string[]
-  vehicleType: string
-  description: string
-  interiorCondition: number
-  exteriorCondition: number
-  filthinessFactor: number
-  vehicleSize?: string
-  vehicleSizeFactor?: number
-  luxury?: boolean
-  luxurySurcharge?: number
-  services: {
-    [key: string]: {
-      name: string
-      price: number
-      enabled: boolean
-    }
-  }
-  laborCost: number
-  materialCost: number
-  aiAnalysis?: VehicleAnalysis
+  _id: Id<"assessments">;
+  userId: string;
+  clientName: string;
+  images: string[];
+  vehicleType: VehicleType;
+  interiorCondition: number;
+  exteriorCondition: number;
+  estimatedPrice: number;
+  actualPrice?: number;
+  embedding: number[];
+  createdAt: number;
+  services: Record<string, ServiceDetail>;
+  basePrice: number;
+  aiAnalysis?: VehicleAnalysis;
+}
+
+export interface ServiceDetail {
+  name: string;
+  price: number;
+  enabled: boolean;
 }
 
 export interface VehicleAnalysis {
-  bodyType: string
-  damageAreas: string[]
-  cleanlinessLevel: number
-  recommendedServices: string[]
-  confidenceScore: number
+  bodyType: string;
+  damageAreas: string[];
+  cleanlinessLevel: string;
+  recommendedServices: string[];
+  confidenceScore: number;
+}
+
+export interface PricingModel {
+  basePrice: Record<VehicleType, number>;
+  surcharges: {
+    luxurySurcharge: number;
+    filthinessFactor: number;
+  };
+  services: Record<string, ServiceDetail>;
+  laborCost: number;
+  materialCost: number;
 }

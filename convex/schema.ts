@@ -1,6 +1,12 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+const serviceSchema = {
+  name: v.string(),
+  price: v.number(),
+  enabled: v.boolean(),
+};
+
 export default defineSchema({
   users: defineTable({
     clerkId: v.string(),
@@ -11,21 +17,29 @@ export default defineSchema({
 
   assessments: defineTable({
     userId: v.string(),
-    clientName: v.string(),
     images: v.array(v.string()),
-    vehicleType: v.string(),
+    vehicleType: v.union(
+      v.literal("sedan"),
+      v.literal("suv"),
+      v.literal("truck"),
+      v.literal("van"),
+      v.literal("sports"),
+      v.literal("luxury")
+    ),
     interiorCondition: v.number(),
     exteriorCondition: v.number(),
     estimatedPrice: v.number(),
     actualPrice: v.optional(v.number()),
-    services: v.array(v.object({
-      name: v.string(),
-      price: v.number(),
-      enabled: v.boolean(),
-    })),
+    embedding: v.array(v.number()),
+    createdAt: v.number(),
+    services: v.record(v.string(), v.object(serviceSchema)),
     basePrice: v.number(),
+    clientName: v.string(),
   }).index("by_user", ["userId"])
-    .index("by_client_name_and_userId", ["clientName", "userId"]),
+    .vectorIndex("by_embedding", {
+      vectorField: "embedding",
+      dimensions: 384,
+    }),
 
   pricingModels: defineTable({
     basePrice: v.object({
@@ -40,11 +54,7 @@ export default defineSchema({
       luxurySurcharge: v.number(),
       filthinessFactor: v.number(),
     }),
-    services: v.array(v.object({
-      name: v.string(),
-      price: v.number(),
-      enabled: v.boolean(),
-    })),
+    services: v.record(v.string(), v.object(serviceSchema)),
     laborCost: v.number(),
     materialCost: v.number(),
   }),
