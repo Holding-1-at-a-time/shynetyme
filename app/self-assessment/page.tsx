@@ -29,8 +29,14 @@ export default function SelfAssessmentPage() {
     assessmentId ? { assessmentId } : "skip"
   );
 
-  const handleAssessmentComplete = async (estimatedPrice: number) => {
+  /**
+   * Handle the assessment completion.
+   * Create a new assessment in the database and
+   * display a toast message with the result.
+   */
+  const handleAssessmentComplete = async () => {
     if (!user) {
+      // If user is not logged in, display an error toast.
       toast({
         title: "Error",
         description: "You must be logged in to create an assessment",
@@ -39,21 +45,30 @@ export default function SelfAssessmentPage() {
       return;
     }
 
+    // Try to create a new assessment in the database.
     try {
-      const result = await createAssessment({
+      const assessmentToCreate: Partial<Assessment> = {
         userId: user.id,
         clientName: user.fullName || 'Anonymous',
-        ...assessmentData,
-      });
+        images: assessmentData.images || [],
+        vehicleType: assessmentData.vehicleType as VehicleType,
+        description: assessmentData.description || '',
+        interiorCondition: assessmentData.interiorCondition || 50,
+        exteriorCondition: assessmentData.exteriorCondition || 50,
+      };  
+
+      const result = await ctx.createAssessment();
       setAssessmentId(result);
       toast({
-        title: "Success",
+        title: "Success", 
         description: "Assessment created successfully",
       });
     } catch (error) {
+      // If there is an error, display an error toast.
+      console.error('Error creating assessment:', error);
       toast({
         title: "Error",
-        description: "Failed to create assessment",
+        description: "There was an error creating your assessment. Please try again.",
         variant: "destructive",
       });
     }
@@ -66,7 +81,7 @@ export default function SelfAssessmentPage() {
         <SelfAssessmentForm
           assessment={assessmentData}
           step={1}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
           onAssessmentChange={setAssessmentData}
           onAssessmentComplete={handleAssessmentComplete}
         />

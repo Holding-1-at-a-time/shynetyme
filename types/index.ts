@@ -3,17 +3,18 @@ import { Id } from "../convex/_generated/dataModel";
 export type VehicleType = "sedan" | "suv" | "truck" | "van" | "sports" | "luxury";
 
 export interface Assessment {
-  _id: Id<"assessments">;
+  _id?: Id<"assessments">;
   userId: string;
   clientName: string;
   images: string[];
   vehicleType: VehicleType;
+  description: string; // Added this field
   interiorCondition: number;
   exteriorCondition: number;
-  estimatedPrice: number;
+  estimatedPrice?: number;
   actualPrice?: number;
-  embedding: number[];
-  createdAt: number;
+  embedding?: number[];
+  createdAt?: number;
   services: Record<string, ServiceDetail>;
   basePrice: number;
   aiAnalysis?: VehicleAnalysis;

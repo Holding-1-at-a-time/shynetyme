@@ -211,7 +211,7 @@ export const updatePricingModel = mutation({
         luxurySurcharge: v.number(),
         filthinessFactor: v.number(),
       }),
-      services: v.array(v.object({
+      services: v.record(v.string(), v.object({
         name: v.string(),
         price: v.number(),
         enabled: v.boolean(),
@@ -223,7 +223,7 @@ export const updatePricingModel = mutation({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new ConvexError("Unauthorized");
+      throw new Error('Unauthorized');
     }
 
     const isAdmin = await ctx.runQuery(api.users.isUserAdmin, { 
@@ -231,14 +231,24 @@ export const updatePricingModel = mutation({
     });
     
     if (!isAdmin) {
-      throw new ConvexError("Unauthorized: Admin privileges required");
+      throw new Error("Unauthorized: Admin privileges required");
     }
 
     const existingModel = await ctx.db.query("pricingModels").first();
     if (existingModel) {
-      await ctx.db.patch(existingModel._id, args.updates);
+      await ctx.db.patch(existingModel._id, {
+        ...args.updates,
+        services: Object.fromEntries(
+          Object.entries(args.updates.services).map(([key, value]) => [key, value])
+        ),
+      });
     } else {
-      await ctx.db.insert("pricingModels", args.updates);
+      await ctx.db.insert("pricingModels", {
+        ...args.updates,
+        services: Object.fromEntries(
+          Object.entries(args.updates.services).map(([key, value]) => [key, value])
+        ),
+      });
     }
 
     logger.info('Pricing model updated successfully');

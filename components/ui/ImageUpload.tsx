@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { CloudUpload } from 'lucide-react'
 
-interface ImageUploadProps {
+export interface ImageUploadProps {
   images: string[]
   onChange: (images: string[]) => void
+  maxImages?: number
 }
 
-export function ImageUpload({ images, onChange }: ImageUploadProps) {
+export function ImageUpload({ images, onChange, maxImages = 10 }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [objectURLs, setObjectURLs] = useState<string[]>([])
 

@@ -32,9 +32,17 @@ export default defineSchema({
     actualPrice: v.optional(v.number()),
     embedding: v.array(v.number()),
     createdAt: v.number(),
+    description: v.string(),
     services: v.record(v.string(), v.object(serviceSchema)),
     basePrice: v.number(),
     clientName: v.string(),
+    aiAnalysis: v.optional(v.object({
+      bodyType: v.string(),
+      damageAreas: v.array(v.string()),
+      cleanlinessLevel: v.string(),
+      recommendedServices: v.array(v.string()),
+      confidenceScore: v.number(),
+    })),
   }).index("by_user", ["userId"])
     .vectorIndex("by_embedding", {
       vectorField: "embedding",
