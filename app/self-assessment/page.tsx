@@ -12,7 +12,7 @@ import { Id } from "@/convex/_generated/dataModel"
 export default function SelfAssessmentPage() {
   const { user } = useUser();
   const { toast } = useToast();
-  const [assessmentId, setAssessmentId] = useState<Id<"assessments"> | null>(null);
+  const [assessmentId, setAssessmentId] = useState | undefined>(undefined);
 
   const [assessmentData, setAssessmentData] = useState<Partial<Assessment>>({
     images: [],
