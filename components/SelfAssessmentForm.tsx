@@ -4,13 +4,15 @@ import { api } from '@/convex/_generated/api'
 import { useToast } from './ui/use-toast'
 import { Stepper } from './ui/stepper'
 import { Button } from './ui/button'
-import { ImageUpload } from './ui/imageUpload'
+import { ImageUpload } from './ui/ImageUpload'
 import { Slider } from './ui/slider'
 import { Input } from './ui/input'
 
+import { Assessment } from '@/types';
+
 interface SelfAssessmentFormProps {
   step: number
-  assessment: Assessment | null
+  assessment: Partial<Assessment>
   onStepChange: (step: number) => void
   onAssessmentChange: (assessment: Partial<Assessment>) => void
   onAssessmentComplete: (estimatedPrice: number) => void

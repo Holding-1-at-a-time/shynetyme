@@ -3,124 +3,95 @@
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
-import { VehicleAnalysis } from '@/types'
+import { Assessment } from '@/types'
 
 interface DynamicPricingEstimateProps {
-  /**
-   * The vehicle assessment to base the price on
-   */
-  assessment: VehicleAnalysis
-  /**
-   * The function to call when the user approves the estimate
-   */
-  onApprove: () => void
-  /**
-   * The function to call when the user wants to modify the services
-   */
-  onModify: () => void
+  assessment: Assessment;
+  onApprove: () => void;
+  onModify: () => void;
 }
 
-export function DynamicPricingEstimate({ assessment, onApprove, onModify }: DynamicPricingEstimateProps) {
-  const [totalPrice, setTotalPrice] = useState<number>(0)
-  const [selectedServices, setSelectedServices] = useState<string[]>([])
+export function DynamicPricingEstimate({
+  assessment,
+  onApprove,
+  onModify,
+}: DynamicPricingEstimateProps) {
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
   useEffect(() => {
-    // Calculate total price based on assessment and selected services
     let price = assessment.basePrice;
-  
-    if (assessment.vehicleSize) {
-      price += assessment.vehicleSizeFactor;
-    }
-    if (assessment.filthiness) {
-      price += assessment.filthinessFactor;
-    }
-    if (assessment.luxury) {
-      price += assessment.luxurySurcharge;
-    }
-  
-    selectedServices.forEach((service) => {
-      const serviceDetail = assessment.availableServices.find(s => s.name === service);
-      if (serviceDetail) {
-        price += serviceDetail.price;
+
+    // Add service costs
+    selectedServices.forEach((serviceKey) => {
+      const service = assessment.services[serviceKey];
+      if (service?.enabled) {
+        price += service.price;
       }
     });
-  
-    price += assessment.laborCost + assessment.materialCost;
-  
-    setTotalPrice(price);
+
+    // Add condition factors
+    const interiorFactor = 1 + (100 - assessment.interiorCondition) / 100;
+    const exteriorFactor = 1 + (100 - assessment.exteriorCondition) / 100;
+    price *= (interiorFactor + exteriorFactor) / 2;
+
+    setTotalPrice(Math.round(price));
   }, [assessment, selectedServices]);
 
-    selectedServices.forEach((service) => {
-      const serviceDetail = assessment.availableServices.find(s => s.name === service);
-      if (serviceDetail && serviceDetail.enabled) {
-        price += serviceDetail.price;
-      }
-    });
-
-    price += assessment.laborCost + assessment.materialCost;
-
-    setTotalPrice(price)
-  }, [assessment, selectedServices])
-
-  const handleServiceToggle = (service: string) => {
+  const handleServiceToggle = (serviceKey: string) => {
     setSelectedServices((prev) =>
-      prev.includes(service) ? prev.filter((s) => s !== service) : [...prev, service]
-    )
-  }
+      prev.includes(serviceKey)
+        ? prev.filter((s) => s !== serviceKey)
+        : [...prev, serviceKey]
+    );
+  };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Dynamic Pricing Estimate</CardTitle>
+        <CardTitle>Price Estimate</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div>
-            <h4 className="font-medium">Pricing Breakdown</h4>
-            <ul className="list-disc list-inside">
-              <li>Base Price: ${assessment.basePrice}</li>
-              {assessment.vehicleSize && <li>Vehicle Size Factor: +${assessment.vehicleSizeFactor}</li>}
-              {assessment.filthiness && <li>Filthiness Factor: +${assessment.filthinessFactor}</li>}
-              {assessment.luxury && <li>Luxury Surcharge: +${assessment.luxurySurcharge}</li>}
-              {selectedServices.map((service) => (
-                <li key={service}>{assessment.services[service].name}: +${assessment.services[service].price}</li>
-              ))}
-              <li>Labor Cost: +${assessment.laborCost}</li>
-              <li>Material Cost: +${assessment.materialCost}</li>
-            </ul>
+            <h3 className="font-medium">Base Price</h3>
+            <p className="text-2xl font-bold">${assessment.basePrice}</p>
           </div>
 
           <div>
-            <h4 className="font-medium">Select Services</h4>
-            <div className="space-y-2">
-              {Object.keys(assessment.services).map((serviceKey) => (
-                <div key={serviceKey} className="flex items-center">
+            <h3 className="font-medium">Available Services</h3>
+            {Object.entries(assessment.services).map(([key, service]) => (
+              <div key={key} className="flex items-center justify-between py-2">
+                <label className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    id={serviceKey}
-                    checked={selectedServices.includes(serviceKey)}
-                    onChange={() => handleServiceToggle(serviceKey)}
-                    disabled={!assessment.services[serviceKey].enabled}
-                    className="mr-2"
+                    checked={selectedServices.includes(key)}
+                    onChange={() => handleServiceToggle(key)}
+                    disabled={!service.enabled}
+                    className="form-checkbox"
                   />
-                  <label htmlFor={serviceKey} className="capitalize">
-                    {assessment.services[serviceKey].name} (+${assessment.services[serviceKey].price})
-                  </label>
-                </div>
-              ))}
-            </div>
+                  <span>{service.name}</span>
+                </label>
+                <span>${service.price}</span>
+              </div>
+            ))}
           </div>
 
-          <div className="text-2xl font-bold">Total Price: ${totalPrice.toFixed(2)}</div>
+          <div className="pt-4 border-t">
+            <h3 className="text-xl font-semibold">Total Price</h3>
+            <p className="text-3xl font-bold">${totalPrice}</p>
+          </div>
 
-          <div className="flex justify-end space-x-4">
-            <Button variant="outline" onClick={onModify}>
-              Modify Services
+          <div className="flex justify-between pt-4">
+            <Button onClick={onModify} variant="outline">
+              Modify
             </Button>
-            <Button onClick={onApprove}>Approve Estimate</Button>
+            <Button onClick={onApprove}>
+              Approve Estimate
+            </Button>
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
