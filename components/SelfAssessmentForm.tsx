@@ -23,10 +23,18 @@ const VEHICLE_TYPES: { label: string; value: VehicleType }[] = [
 
 interface SelfAssessmentFormProps {
   step: number
-  assessment: Partial<Assessment>
+  assessment: Required<Pick<Assessment, 
+    'userId' | 
+    'clientName' | 
+    'images' | 
+    'vehicleType' | 
+    'description' | 
+    'interiorCondition' | 
+    'exteriorCondition'
+  >>;
   onStepChange: (step: number) => void
   onAssessmentChange: (assessment: Partial<Assessment>) => void
-  onAssessmentComplete: (result: any) => void
+  onAssessmentComplete: () => void
 }
 
 export function SelfAssessmentForm({
@@ -76,12 +84,11 @@ export function SelfAssessmentForm({
     setIsSubmitting(true)
     try {
       const result = await createAssessment({
-        ...assessment,
-        description: assessment.description || '',
         userId: assessment.userId,
         clientName: assessment.clientName,
-        images: assessment.images || [],
+        images: assessment.images,
         vehicleType: assessment.vehicleType,
+        description: assessment.description,
         interiorCondition: assessment.interiorCondition,
         exteriorCondition: assessment.exteriorCondition,
       })
@@ -89,12 +96,12 @@ export function SelfAssessmentForm({
         title: "Assessment submitted",
         description: "Your vehicle assessment has been successfully submitted.",
       })
-      onAssessmentComplete(result)
+      onAssessmentComplete()
     } catch (error) {
       console.error('Error submitting assessment:', error)
       toast({
         title: "Error",
-        description: "There was an error submitting your assessment. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to submit assessment",
         variant: "destructive",
       })
     } finally {

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@amplitude/analytics-browser':
+        specifier: ^2.11.8
+        version: 2.11.8
       '@clerk/nextjs':
         specifier: ^5.7.5
         version: 5.7.5(next@15.0.1(@babel/core@7.25.9)(react-dom@19.0.0-rc-cd22717c-20241013(react@19.0.0-rc-cd22717c-20241013))(react@19.0.0-rc-cd22717c-20241013))(react-dom@19.0.0-rc-cd22717c-20241013(react@19.0.0-rc-cd22717c-20241013))(react@19.0.0-rc-cd22717c-20241013)
@@ -29,6 +32,9 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.1.3
         version: 1.1.3(@types/react-dom@18.3.1)(@types/react@18.3.11)(react-dom@19.0.0-rc-cd22717c-20241013(react@19.0.0-rc-cd22717c-20241013))(react@19.0.0-rc-cd22717c-20241013)
+      amplitude:
+        specifier: ^6.0.0
+        version: 6.0.0
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -40,7 +46,7 @@ importers:
         version: 1.17.0(@clerk/clerk-react@5.12.0(react-dom@19.0.0-rc-cd22717c-20241013(react@19.0.0-rc-cd22717c-20241013))(react@19.0.0-rc-cd22717c-20241013))(react-dom@19.0.0-rc-cd22717c-20241013(react@19.0.0-rc-cd22717c-20241013))(react@19.0.0-rc-cd22717c-20241013)
       langchain:
         specifier: ^0.3.3
-        version: 0.3.3(@langchain/core@0.3.13(openai@4.68.2(zod@3.23.8)))(openai@4.68.2(zod@3.23.8))
+        version: 0.3.3(@langchain/core@0.3.13(openai@4.68.2(zod@3.23.8)))(axios@0.26.1)(openai@4.68.2(zod@3.23.8))
       lucide-react:
         specifier: ^0.453.0
         version: 0.453.0(react@19.0.0-rc-cd22717c-20241013)
@@ -120,6 +126,30 @@ packages:
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
+
+  '@amplitude/analytics-browser@2.11.8':
+    resolution: {integrity: sha512-lFv8deROLwBfSlg92+r1NitWJ6BN45IKwpPLoixA0fZytScXEJqc0Gl5O+BY4qScbFECYt9PFKblhB+jC+IvPg==}
+
+  '@amplitude/analytics-client-common@2.3.4':
+    resolution: {integrity: sha512-3oqdvca5W4BPblTaxf60YRtlh2uC+N3rA99wowDAhTBJoMJJaauOBoXu5BbiQO1u8Zw/c8ymyr8E20+glyptUg==}
+
+  '@amplitude/analytics-connector@1.5.0':
+    resolution: {integrity: sha512-T8mOYzB9RRxckzhL0NTHwdge9xuFxXEOplC8B1Y3UX3NHa3BLh7DlBUZlCOwQgMc2nxDfnSweDL5S3bhC+W90g==}
+
+  '@amplitude/analytics-core@2.5.3':
+    resolution: {integrity: sha512-dvx3PS0adnHRS22VbuP9YtWg//bQGF2c61Pj5IYXVsemtRRHqiS7XJ860brk3WeQgOkqf3Gyc023DoYcsWGoNQ==}
+
+  '@amplitude/analytics-remote-config@0.4.1':
+    resolution: {integrity: sha512-BYl6kQ9qjztrCACsugpxO+foLaQIC0aSEzoXEAb/gwOzInmqkyyI+Ub+aWTBih4xgB/lhWlOcidWHAmNiTJTNw==}
+
+  '@amplitude/analytics-types@2.8.3':
+    resolution: {integrity: sha512-HNmKVd0ACoi3xTi86xi+is7WgqKT78JA4fYLcM25/ckFkZ1zVCqD1AubaADEh26m34nJ3qDLK5Pob4QptQNPAg==}
+
+  '@amplitude/plugin-autocapture-browser@1.0.3':
+    resolution: {integrity: sha512-XUQWUAw9VqtJPlmOyWjnhsEspyVakd9LuSjVNtLjhwlWv+f/yZM1AAQVUdq/Os1+b5OptSgJQ2pPfRJJHZDXTw==}
+
+  '@amplitude/plugin-page-view-tracking-browser@2.3.4':
+    resolution: {integrity: sha512-l7RS5gssG0BPYlgirV0NQ94EPzTOdDkp0z2jqU45D3DQAJXkoloUyw5lw/cbUXYwNulHZTG/BExcERfdvVWkLA==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -1721,6 +1751,10 @@ packages:
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
 
+  amplitude@6.0.0:
+    resolution: {integrity: sha512-h1QkNCgM4PQbJwrzfrpKbs4MtlOXDRB7mtI6yF3SaGadRIXmjOU6ei/JnHJd2UU4lLWnik1+LzAY3rmmDD+QRg==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
   ansi-escapes@4.3.2:
     resolution: {integrity: sha512-gKXj5ALrKWQLsYG9jlTRmR/xKluxHV+Z9QEwNIgCfM1/uwPMCuzVVnh5mwTd+OuBZcwSIMbqssNWRm1lE51QaQ==}
     engines: {node: '>=8'}
@@ -1832,6 +1866,9 @@ packages:
   axe-core@4.10.1:
     resolution: {integrity: sha512-qPC9o+kD8Tir0lzNGLeghbOrWMr3ZJpaRlCIb6Uobt/7N4FiEDvqUMnxzCHRHmg8vOg14kr5gVNyScRmbMaJ9g==}
     engines: {node: '>=4'}
+
+  axios@0.26.1:
+    resolution: {integrity: sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -2523,6 +2560,15 @@ packages:
 
   flatted@3.3.1:
     resolution: {integrity: sha512-X8cqMLLie7KsNUDSdzeN8FYK9rEt4Dt67OsG/DNGnYTSDBG4uFAJFBnUeiV+zCVAvwFy56IjM9sH51jVaEhNxw==}
+
+  follow-redirects@1.15.9:
+    resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
 
   for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
@@ -3843,6 +3889,9 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
+  rxjs@7.8.1:
+    resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
+
   safe-array-concat@1.1.2:
     resolution: {integrity: sha512-vj6RsCsWBCf19jIeHEfkRMw8DPiBb+DMXklQ/1SGDHOMlHdPUkZXFQ2YdplS23zESTijAcurb1aSgJA3AgMu1Q==}
     engines: {node: '>=0.4'}
@@ -4422,6 +4471,52 @@ snapshots:
   '@adobe/css-tools@4.4.0': {}
 
   '@alloc/quick-lru@5.2.0': {}
+
+  '@amplitude/analytics-browser@2.11.8':
+    dependencies:
+      '@amplitude/analytics-client-common': 2.3.4
+      '@amplitude/analytics-core': 2.5.3
+      '@amplitude/analytics-remote-config': 0.4.1
+      '@amplitude/analytics-types': 2.8.3
+      '@amplitude/plugin-autocapture-browser': 1.0.3
+      '@amplitude/plugin-page-view-tracking-browser': 2.3.4
+      tslib: 2.8.0
+
+  '@amplitude/analytics-client-common@2.3.4':
+    dependencies:
+      '@amplitude/analytics-connector': 1.5.0
+      '@amplitude/analytics-core': 2.5.3
+      '@amplitude/analytics-types': 2.8.3
+      tslib: 2.8.0
+
+  '@amplitude/analytics-connector@1.5.0': {}
+
+  '@amplitude/analytics-core@2.5.3':
+    dependencies:
+      '@amplitude/analytics-types': 2.8.3
+      tslib: 2.8.0
+
+  '@amplitude/analytics-remote-config@0.4.1':
+    dependencies:
+      '@amplitude/analytics-client-common': 2.3.4
+      '@amplitude/analytics-core': 2.5.3
+      '@amplitude/analytics-types': 2.8.3
+      tslib: 2.8.0
+
+  '@amplitude/analytics-types@2.8.3': {}
+
+  '@amplitude/plugin-autocapture-browser@1.0.3':
+    dependencies:
+      '@amplitude/analytics-client-common': 2.3.4
+      '@amplitude/analytics-types': 2.8.3
+      rxjs: 7.8.1
+      tslib: 2.8.0
+
+  '@amplitude/plugin-page-view-tracking-browser@2.3.4':
+    dependencies:
+      '@amplitude/analytics-client-common': 2.3.4
+      '@amplitude/analytics-types': 2.8.3
+      tslib: 2.8.0
 
   '@ampproject/remapping@2.3.0':
     dependencies:
@@ -6175,6 +6270,12 @@ snapshots:
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
 
+  amplitude@6.0.0:
+    dependencies:
+      axios: 0.26.1
+    transitivePeerDependencies:
+      - debug
+
   ansi-escapes@4.3.2:
     dependencies:
       type-fest: 0.21.3
@@ -6302,6 +6403,12 @@ snapshots:
       possible-typed-array-names: 1.0.0
 
   axe-core@4.10.1: {}
+
+  axios@0.26.1:
+    dependencies:
+      follow-redirects: 1.15.9
+    transitivePeerDependencies:
+      - debug
 
   axobject-query@4.1.0: {}
 
@@ -7188,6 +7295,8 @@ snapshots:
 
   flatted@3.3.1: {}
 
+  follow-redirects@1.15.9: {}
+
   for-each@0.3.3:
     dependencies:
       is-callable: 1.2.7
@@ -8008,7 +8117,7 @@ snapshots:
 
   kleur@3.0.3: {}
 
-  langchain@0.3.3(@langchain/core@0.3.13(openai@4.68.2(zod@3.23.8)))(openai@4.68.2(zod@3.23.8)):
+  langchain@0.3.3(@langchain/core@0.3.13(openai@4.68.2(zod@3.23.8)))(axios@0.26.1)(openai@4.68.2(zod@3.23.8)):
     dependencies:
       '@langchain/core': 0.3.13(openai@4.68.2(zod@3.23.8))
       '@langchain/openai': 0.3.11(@langchain/core@0.3.13(openai@4.68.2(zod@3.23.8)))
@@ -8023,6 +8132,8 @@ snapshots:
       yaml: 2.6.0
       zod: 3.23.8
       zod-to-json-schema: 3.23.3(zod@3.23.8)
+    optionalDependencies:
+      axios: 0.26.1
     transitivePeerDependencies:
       - encoding
       - openai
@@ -8690,6 +8801,10 @@ snapshots:
   run-parallel@1.2.0:
     dependencies:
       queue-microtask: 1.2.3
+
+  rxjs@7.8.1:
+    dependencies:
+      tslib: 2.8.0
 
   safe-array-concat@1.1.2:
     dependencies:

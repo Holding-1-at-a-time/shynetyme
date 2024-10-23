@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useMutation, useQuery } from 'convex/react'
+import { useState, useEffect } from 'react'
+import { useMutation } from 'convex/react'
 import { api } from '@/convex/_generated/api'
 import { SelfAssessmentForm } from '@/components/SelfAssessmentForm'
 import { useToast } from '@/components/ui/use-toast'
@@ -9,34 +9,45 @@ import { useUser } from "@clerk/nextjs"
 import { Assessment, VehicleType } from '@/types'
 import { Id } from "@/convex/_generated/dataModel"
 
+interface AssessmentFormData extends Required<Pick<Assessment, 
+  'userId' | 
+  'clientName' | 
+  'images' | 
+  'vehicleType' | 
+  'description' | 
+  'interiorCondition' | 
+  'exteriorCondition'
+>> {}
+
 export default function SelfAssessmentPage() {
   const { user } = useUser();
   const { toast } = useToast();
-  const [assessmentId, setAssessmentId] = useState | undefined>(undefined);
+  const [assessmentId, setAssessmentId] = useState<Id<"assessments"> | null>(null);
 
-  const [assessmentData, setAssessmentData] = useState<Partial<Assessment>>({
+  const [assessmentData, setAssessmentData] = useState<AssessmentFormData>({
+    userId: user?.id || '',
+    clientName: user?.fullName || '',
     images: [],
     vehicleType: 'sedan' as VehicleType,
+    description: '',
     interiorCondition: 50,
     exteriorCondition: 50,
-    services: {},
-    basePrice: 0,
   });
 
   const createAssessment = useMutation(api.assessments.createAssessment);
-  const assessment = useQuery(
-    api.assessments.getAssessment,
-    assessmentId ? { assessmentId } : "skip"
-  );
 
-  /**
-   * Handle the assessment completion.
-   * Create a new assessment in the database and
-   * display a toast message with the result.
-   */
-  const handleAssessmentComplete = async () => {
+  useEffect(() => {
+    if (user) {
+      setAssessmentData(prev => ({
+        ...prev,
+        userId: user.id,
+        clientName: user.fullName || '',
+      }));
+    }
+  }, [user]);
+
+  const handleSubmit = async () => {
     if (!user) {
-      // If user is not logged in, display an error toast.
       toast({
         title: "Error",
         description: "You must be logged in to create an assessment",
@@ -45,30 +56,17 @@ export default function SelfAssessmentPage() {
       return;
     }
 
-    // Try to create a new assessment in the database.
     try {
-      const assessmentToCreate: Partial<Assessment> = {
-        userId: user.id,
-        clientName: user.fullName || 'Anonymous',
-        images: assessmentData.images || [],
-        vehicleType: assessmentData.vehicleType as VehicleType,
-        description: assessmentData.description || '',
-        interiorCondition: assessmentData.interiorCondition || 50,
-        exteriorCondition: assessmentData.exteriorCondition || 50,
-      };  
-
-      const result = await ctx.createAssessment();
+      const result = await createAssessment(assessmentData);
       setAssessmentId(result);
       toast({
-        title: "Success", 
+        title: "Success",
         description: "Assessment created successfully",
       });
     } catch (error) {
-      // If there is an error, display an error toast.
-      console.error('Error creating assessment:', error);
       toast({
         title: "Error",
-        description: "There was an error creating your assessment. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to create assessment",
         variant: "destructive",
       });
     }
@@ -81,28 +79,32 @@ export default function SelfAssessmentPage() {
         <SelfAssessmentForm
           assessment={assessmentData}
           step={1}
-          onStepChange={() => { }}
-          onAssessmentChange={setAssessmentData}
-          onAssessmentComplete={handleAssessmentComplete}
+          onStepChange={() => {}}
+          onAssessmentChange={(newData) => setAssessmentData(prev => ({ ...prev, ...newData }))}
+          onAssessmentComplete={handleSubmit}
         />
 
-        {assessment && (
+        {assessmentData && (
           <div className="mt-6 p-4 border rounded-md bg-gray-50">
             <h2 className="text-xl font-semibold mb-2">Assessment Details</h2>
-            <p><strong>Vehicle Type:</strong> {assessment.vehicleType}</p>
-            <p><strong>Interior Condition:</strong> {assessment.interiorCondition}</p>
-            <p><strong>Exterior Condition:</strong> {assessment.exteriorCondition}</p>
-            <p><strong>Estimated Price:</strong> ${assessment.estimatedPrice}</p>
-            <p><strong>Created At:</strong> {new Date(assessment.createdAt).toLocaleString()}</p>
+            <p><strong>Vehicle Type:</strong> {assessmentData.vehicleType}</p>
+            <p><strong>Interior Condition:</strong> {assessmentData.interiorCondition}</p>
+            <p><strong>Exterior Condition:</strong> {assessmentData.exteriorCondition}</p>
+            {assessmentData.estimatedPrice && (
+              <p><strong>Estimated Price:</strong> ${assessmentData.estimatedPrice}</p>
+            )}
+            {assessmentData.createdAt && (
+              <p><strong>Created At:</strong> {new Date(assessmentData.createdAt).toLocaleString()}</p>
+            )}
 
-            {assessment.aiAnalysis && (
+            {assessmentData.aiAnalysis && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold">AI Analysis</h3>
-                <p>Body Type: {assessment.aiAnalysis.bodyType}</p>
-                <p>Damage Areas: {assessment.aiAnalysis.damageAreas.join(', ')}</p>
-                <p>Cleanliness Level: {assessment.aiAnalysis.cleanlinessLevel}</p>
-                <p>Recommended Services: {assessment.aiAnalysis.recommendedServices.join(', ')}</p>
-                <p>Confidence Score: {assessment.aiAnalysis.confidenceScore}</p>
+                <p>Body Type: {assessmentData.aiAnalysis.bodyType}</p>
+                <p>Damage Areas: {assessmentData.aiAnalysis.damageAreas.join(', ')}</p>
+                <p>Cleanliness Level: {assessmentData.aiAnalysis.cleanlinessLevel}</p>
+                <p>Recommended Services: {assessmentData.aiAnalysis.recommendedServices.join(', ')}</p>
+                <p>Confidence Score: {assessmentData.aiAnalysis.confidenceScore}</p>
               </div>
             )}
           </div>

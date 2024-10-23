@@ -6,9 +6,11 @@ import { Id } from "./_generated/dataModel";
 import { Assessment, VehicleType } from "../types";
 
 // Custom error types for better error handling
-export class AssessmentError extends ConvexError<{ code: string }> {
+export class AssessmentError extends ConvexError {
   constructor(message: string, public code: string) {
-    super({ message, code });
+    super(message);
+    this.name = 'AssessmentError';
+    this.code = code;
   }
 }
 
@@ -30,39 +32,7 @@ export const createAssessment = mutation({
     exteriorCondition: v.number(),
   },
   handler: async (ctx, args): Promise<Id<"assessments">> => {
-    // Validate user authentication
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new AssessmentError(
-        "User must be authenticated to create an assessment",
-        "UNAUTHORIZED"
-      );
-    }
-
-    // Validate input data
-    if (args.images.length === 0) {
-      throw new AssessmentError(
-        "At least one vehicle image is required",
-        "INVALID_INPUT"
-      );
-    }
-
-    if (args.interiorCondition < 0 || args.interiorCondition > 100) {
-      throw new AssessmentError(
-        "Interior condition must be between 0 and 100",
-        "INVALID_INPUT"
-      );
-    }
-
-    if (args.exteriorCondition < 0 || args.exteriorCondition > 100) {
-      throw new AssessmentError(
-        "Exterior condition must be between 0 and 100",
-        "INVALID_INPUT"
-      );
-    }
-
     try {
-      // Calculate estimated price
       const estimatedPrice = await ctx.runMutation(api.pricing.calculateEstimatedPrice, {
         vehicleType: args.vehicleType,
         interiorCondition: args.interiorCondition,
@@ -76,24 +46,16 @@ export const createAssessment = mutation({
         embedding: [],
         services: {},
         basePrice: 0,
+        createdAt: Date.now(), // Add the missing createdAt field
+        aiAnalysis: undefined, // Add optional fields explicitly
+        actualPrice: undefined,
       };
 
-      const assessmentId = await ctx.db.insert("assessments", assessmentData);
-
-      // Remove scheduler.runAfter since we don't have ai module yet
-      // We'll implement AI analysis differently
-
-      return assessmentId;
+      return await ctx.db.insert("assessments", assessmentData);
     } catch (error) {
-      if (error instanceof AssessmentError) {
-        throw error;
-      }
-      
-      // Log unexpected errors
-      console.error('Error creating assessment:', error);
       throw new AssessmentError(
-        "Failed to create assessment. Please try again later.",
-        "INTERNAL_ERROR"
+        error instanceof Error ? error.message : "Unknown error occurred",
+        "CREATE_FAILED"
       );
     }
   },
