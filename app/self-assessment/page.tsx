@@ -1,19 +1,29 @@
 'use client'
 
-import { useState } from 'react'
-import { useMutation, useQuery } from 'convex/react'
 import { api } from '@/convex/_generated/api'
-import { SelfAssessmentForm } from '@/components/SelfAssessmentForm'
-import { DynamicPricingEstimate } from '@/components/DynamicPricingEstimate'
-import { useToast } from '@/components/ui/use-toast'
-import { SimilarAssessments } from '@/components/SimilarAssessments'
-import { AiVehicleAssessment } from '@/components/AiVehicleAssessment'
 import { VehicleAnalysis } from '@/types'
-import { useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs"
+import { useMutation, useQuery } from 'convex/react'
+import { useState } from 'react'
+import { useToast } from '@/hooks/use-toast'
+import { Id } from '@/convex/_generated/dataModel'
+import { SelfAssessmentForm } from '@/components/SelfAssessmentForm'
 
-export default function SelfAssessmentPage() {
-  const { user } = useUser();
-  const [assessment, setAssessment] = useState({
+
+interface AssessmentData {
+  id: string
+  images: string[]
+  vehicleType: string
+  interiorCondition: number
+  exteriorCondition: number
+  services: Record<string, boolean>
+  basePrice: number
+  aiAnalysis: VehicleAnalysis | undefined
+}
+
+const SelfAssessmentPage = () => {
+  const { user } = useUser()
+  const [assessmentData, setAssessmentData] = useState<AssessmentData>({
     id: '',
     images: [],
     vehicleType: '',
@@ -21,38 +31,83 @@ export default function SelfAssessmentPage() {
     exteriorCondition: 50,
     services: {},
     basePrice: 0,
-    aiAnalysis: undefined as VehicleAnalysis | undefined,
-  });
-  const { toast } = useToast();
+    aiAnalysis: undefined,
+  })
+  const { toast } = useToast()
 
-  const createAssessment = useMutation(api.assessments.createAssessment);
-  const getAssessment = useQuery(api.assessments.getAssessment, { 
-    assessmentId: assessment.id as Id<"assessments"> 
-  });
-  const updateAssessment = useMutation(api.assessments.updateAssessment);
+  const createAssessment = useMutation(api.assessments.createAssessment)
+  const getAssessment = useQuery(
+    api.assessments.getAssessment,
+    {
+      assessmentId: assessmentData.id as Id<'assessments'>
+    }
+  )
+  const updateAssessment = useMutation(api.assessments.updateAssessment)
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+    event.preventDefault()
     if (!user) {
       toast({
         title: "Error",
         description: "You must be logged in to create an assessment",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
 
-    const assessmentData = {
+    const assessmentDataToSave = {
       userId: user.id,
-      images: assessment.images,
-      vehicleType: assessment.vehicleType,
-      interiorCondition: assessment.interiorCondition,
-      exteriorCondition: assessment.exteriorCondition,
-    };
+      images: assessmentData.images,
+      vehicleType: assessmentData.vehicleType,
+      interiorCondition: assessmentData.interiorCondition,
+      exteriorCondition: assessmentData.exteriorCondition,
+    }
 
-    const result = await createAssessment(assessmentData);
-    setAssessment(prev => ({ ...prev, id: result }));
-  };
+    const result = await createAssessment(assessmentDataToSave)
+    setAssessmentData((prev) => ({ ...prev, id: result }))
+  }
 
-  // ... rest of the component
+  return (
+    <>
+      <div>
+        <h1>Self Assessment</h1>
+        <SelfAssessmentForm
+          assessment={assessmentData}
+          onSubmit={handleSubmit}
+        />
+
+        {getAssessment.error && (
+          <div className="mt-4 text-red-500">
+            Error loading assessment: {getAssessment.error.message}
+          </div>
+        )}
+
+        {getAssessment && getAssessment._state === 'loading' && (
+          <div className="mt-4">Loading your assessment...</div>
+        )}
+
+        {getAssessment && getAssessment._state === 'success' && getAssessment.data && (
+          <div className="mt-6 p-4 border rounded-md bg-gray-50">
+            <h2 className="text-xl font-semibold mb-2">Assessment Details</h2>
+            <p><strong>Vehicle Type:</strong> {getAssessment.data.vehicleType}</p>
+            <p><strong>Interior Condition:</strong> {getAssessment.data.interiorCondition}</p>
+            <p><strong>Exterior Condition:</strong> {getAssessment.data.exteriorCondition}</p>
+            <p><strong>Estimated Price:</strong> ${getAssessment.data.estimatedPrice}</p>
+            <p><strong>Created At:</strong> {new Date(getAssessment.data.createdAt).toLocaleString()}</p>
+
+            {getAssessment.data.aiAnalysis && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold">AI Analysis</h3>
+                <p>{getAssessment.data.aiAnalysis.summary}</p>
+                <p>{getAssessment.data.aiAnalysis.description}</p>
+                <p>{getAssessment.data.aiAnalysis.recommendations}</p>
+                <p>{getAssessment.data.aiAnalysis.price}</p>
+                <p>{getAssessment.data.aiAnalysis.services}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  )
 }

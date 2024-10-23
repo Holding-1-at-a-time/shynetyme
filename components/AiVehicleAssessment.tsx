@@ -1,21 +1,21 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Button } from './ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { api } from '@/convex/_generated/api'
 import { useAction, useMutation } from 'convex/react'
 import logger from '@/lib/logger'
-import { toast } from '@/components/ui/use-toast'
-
+import { VehicleAnalysis } from '@/types'
+import { toast } from '@/hooks/use-toast'
 interface AiVehicleAssessmentProps {
   assessmentId: string
   images: string[]
   vehicleType: string
   interiorCondition: number
   exteriorCondition: number
-  onAnalysisComplete: (analysis: VehicleAnalysis) => void
+  onAnalysisComplete: (vehicleAnalysis: VehicleAnalysis) => void
 }
 
 export function AiVehicleAssessment({

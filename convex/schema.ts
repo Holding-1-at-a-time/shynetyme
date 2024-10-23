@@ -11,25 +11,21 @@ export default defineSchema({
 
   assessments: defineTable({
     userId: v.string(),
+    clientName: v.string(),
     images: v.array(v.string()),
     vehicleType: v.string(),
     interiorCondition: v.number(),
     exteriorCondition: v.number(),
     estimatedPrice: v.number(),
     actualPrice: v.optional(v.number()),
-    embedding: v.array(v.number()),
-    createdAt: v.number(),
-    services: v.map(v.object({
+    services: v.array(v.object({
       name: v.string(),
       price: v.number(),
       enabled: v.boolean(),
     })),
     basePrice: v.number(),
   }).index("by_user", ["userId"])
-    .vectorIndex("by_embedding", {
-      vectorField: "embedding",
-      dimensions: 384,
-    }),
+    .index("by_client_name_and_userId", ["clientName", "userId"]),
 
   pricingModels: defineTable({
     basePrice: v.object({
@@ -44,7 +40,7 @@ export default defineSchema({
       luxurySurcharge: v.number(),
       filthinessFactor: v.number(),
     }),
-    services: v.map(v.object({
+    services: v.array(v.object({
       name: v.string(),
       price: v.number(),
       enabled: v.boolean(),

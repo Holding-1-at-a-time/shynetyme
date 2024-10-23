@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { CloudUpload } from 'lucide-react'
 
 interface ImageUploadProps {
@@ -8,10 +8,12 @@ interface ImageUploadProps {
 
 export function ImageUpload({ images, onChange }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [objectURLs, setObjectURLs] = useState<string[]>([])
 
   const handleFilesUpload = (files: FileList) => {
-    const newImages = Array.from(files).map((file) => URL.createObjectURL(file))
-    onChange([...images, ...newImages])
+    const newObjectURLs = Array.from(files).map((file) => URL.createObjectURL(file))
+    setObjectURLs((prev) => [...prev, ...newObjectURLs])
+    onChange([...images, ...newObjectURLs])
   }
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -28,9 +30,19 @@ export function ImageUpload({ images, onChange }: ImageUploadProps) {
 
   const handleDelete = (index: number) => {
     const updatedImages = [...images]
+    const updatedObjectURLs = [...objectURLs]
+    URL.revokeObjectURL(updatedObjectURLs[index])
     updatedImages.splice(index, 1)
+    updatedObjectURLs.splice(index, 1)
+    setObjectURLs(updatedObjectURLs)
     onChange(updatedImages)
   }
+
+  useEffect(() => {
+    return () => {
+      objectURLs.forEach((url) => URL.revokeObjectURL(url))
+    }
+  }, [objectURLs])
 
   return (
     <div>

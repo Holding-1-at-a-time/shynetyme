@@ -1,7 +1,8 @@
-'use client'
-
 import React, { useState } from 'react'
-import { Stepper, Step, StepLabel } from './ui/stepper'
+import { useMutation } from 'convex/react'
+import { api } from '@/convex/_generated/api'
+import { useToast } from './ui/use-toast'
+import { Stepper } from './ui/stepper'
 import { Button } from './ui/button'
 import { ImageUpload } from './ui/imageUpload'
 import { Slider } from './ui/slider'
@@ -12,7 +13,7 @@ interface SelfAssessmentFormProps {
   assessment: Assessment | null
   onStepChange: (step: number) => void
   onAssessmentChange: (assessment: Partial<Assessment>) => void
-  onAssessmentComplete: () => void
+  onAssessmentComplete: (estimatedPrice: number) => void
 }
 
 export function SelfAssessmentForm({
@@ -23,12 +24,36 @@ export function SelfAssessmentForm({
   onAssessmentComplete,
 }: SelfAssessmentFormProps) {
   const totalSteps = 3
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const createAssessment = useMutation(api.assessments.createAssessment)
+  const { toast } = useToast()
 
   const handleNext = () => {
     if (step < totalSteps) {
       onStepChange(step + 1)
     } else {
-      onAssessmentComplete()
+      handleSubmit()
+    }
+  }
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true)
+    try {
+      const result = await createAssessment(assessment)
+      toast({
+        title: "Assessment submitted",
+        description: "Your vehicle assessment has been successfully submitted.",
+      })
+      onAssessmentComplete(result.estimatedPrice)
+    } catch (error) {
+      console.error('Error submitting assessment:', error)
+      toast({
+        title: "Error",
+        description: "There was an error submitting your assessment. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -102,7 +127,7 @@ export function SelfAssessmentForm({
         <Button onClick={handlePrevious} disabled={step === 1}>
           Previous
         </Button>
-        <Button onClick={handleNext}>
+        <Button onClick={handleNext} disabled={isSubmitting}>
           {step === totalSteps ? 'Submit' : 'Next'}
         </Button>
       </div>

@@ -3,10 +3,20 @@
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
+import { VehicleAnalysis } from '@/types'
 
 interface DynamicPricingEstimateProps {
-  assessment: Assessment
+  /**
+   * The vehicle assessment to base the price on
+   */
+  assessment: VehicleAnalysis
+  /**
+   * The function to call when the user approves the estimate
+   */
   onApprove: () => void
+  /**
+   * The function to call when the user wants to modify the services
+   */
   onModify: () => void
 }
 
@@ -16,26 +26,38 @@ export function DynamicPricingEstimate({ assessment, onApprove, onModify }: Dyna
 
   useEffect(() => {
     // Calculate total price based on assessment and selected services
-    let price = assessment.basePrice
-
+    let price = assessment.basePrice;
+  
     if (assessment.vehicleSize) {
-      price += assessment.vehicleSizeFactor
+      price += assessment.vehicleSizeFactor;
     }
     if (assessment.filthiness) {
-      price += assessment.filthinessFactor
+      price += assessment.filthinessFactor;
     }
     if (assessment.luxury) {
-      price += assessment.luxurySurcharge
+      price += assessment.luxurySurcharge;
     }
+  
+    selectedServices.forEach((service) => {
+      const serviceDetail = assessment.availableServices.find(s => s.name === service);
+      if (serviceDetail) {
+        price += serviceDetail.price;
+      }
+    });
+  
+    price += assessment.laborCost + assessment.materialCost;
+  
+    setTotalPrice(price);
+  }, [assessment, selectedServices]);
 
     selectedServices.forEach((service) => {
-      const serviceDetail = assessment.services[service]
-      if (serviceDetail.enabled) {
-        price += serviceDetail.price
+      const serviceDetail = assessment.availableServices.find(s => s.name === service);
+      if (serviceDetail && serviceDetail.enabled) {
+        price += serviceDetail.price;
       }
-    })
+    });
 
-    price += assessment.laborCost + assessment.materialCost
+    price += assessment.laborCost + assessment.materialCost;
 
     setTotalPrice(price)
   }, [assessment, selectedServices])

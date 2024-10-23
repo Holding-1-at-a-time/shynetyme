@@ -20,7 +20,7 @@ interface AssessmentData {
 export const createAssessment = mutation({
     args: {
         userId: v.string(),
-        images: v.array(v.string()),
+        images: v.array(v.string()), // This now expects an array of storage IDs
         vehicleType: v.string(),
         interiorCondition: v.number(),
         exteriorCondition: v.number(),
@@ -50,19 +50,19 @@ export const createAssessment = mutation({
 });
 
 export const getSimilarAssessments = query(async ({ db }, { vehicleType, cleanlinessLevel }) => {
-  const assessments = await db.query('assessments')
-    .where('vehicleType', vehicleType)
-    .and('cleanlinessLevel', cleanlinessLevel)
-    .take(5)
-    .collect()
+    const assessments = await db.query('assessments')
+        .where('vehicleType', vehicleType)
+        .and('cleanlinessLevel', cleanlinessLevel)
+        .take(5)
+        .collect()
 
-  return assessments.map(a => ({
-    id: a.id,
-    vehicleType: a.vehicleType,
-    cleanlinessLevel: a.cleanlinessLevel,
-    totalPrice: a.totalPrice,
-    date: a.createdAt.toISOString(),
-  }))
+    return assessments.map(a => ({
+        id: a.id,
+        vehicleType: a.vehicleType,
+        cleanlinessLevel: a.cleanlinessLevel,
+        totalPrice: a.totalPrice,
+        date: a.createdAt.toISOString(),
+    }))
 })
 
 export const getAssessment = query({
@@ -73,8 +73,8 @@ export const getAssessment = query({
 });
 
 export const updateAssessment = mutation(async ({ db, auth }, { assessmentId, aiAnalysis }) => {
-  if (!auth.userId) {
-    throw new Error('Unauthorized')
-  }
-  await db.patch(assessmentId, { aiAnalysis })
+    if (!auth.userId) {
+        throw new Error('Unauthorized')
+    }
+    await db.patch(assessmentId, { aiAnalysis })
 })
