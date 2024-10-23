@@ -6,8 +6,24 @@ import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+import { Toaster } from 'react-hot-toast'
 
-const ToastProvider = ToastPrimitives.Provider
+const ToastProvider = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <>
+      {children}
+      <Toaster />
+    </>
+  );
+};
+
+export const useToast = () => {
+  return {
+    toast: (props: { title: string; description: string; variant?: 'default' | 'destructive' }) => {
+      // Implementation using react-hot-toast or your preferred toast library
+    },
+  };
+};
 
 const ToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Viewport>,

@@ -5,47 +5,44 @@ import { api } from '@/convex/_generated/api'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 
 interface SimilarAssessmentsProps {
-  assessment: {
-    id: string
-    vehicleType: string
-    interiorCondition: number
-    exteriorCondition: number
-  }
+  assessment: Assessment
+}
+
+interface SimilarAssessment {
+  id: string
+  vehicleType: string
+  cleanlinessLevel: number
+  totalPrice: number
+  date: string
 }
 
 export function SimilarAssessments({ assessment }: SimilarAssessmentsProps) {
-  const similarAssessments = useQuery(api.pricing.getSimilarAssessments, {
+  const similarAssessments = useQuery(api.assessments.getSimilarAssessments, {
     vehicleType: assessment.vehicleType,
-    interiorCondition: assessment.interiorCondition,
-    exteriorCondition: assessment.exteriorCondition,
+    cleanlinessLevel: assessment.cleanlinessLevel,
   })
 
-  const assessmentDetails = useQuery(api.assessments.getAssessment, { assessmentId: assessment.id })
-
-  if (!similarAssessments || !assessmentDetails) {
-    return null
-  }
-
   return (
-    <div className="mt-8">
-      <h2 className="text-2xl font-bold mb-4">Similar Assessments</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {similarAssessments.map((similar) => (
-          <Card key={similar._id}>
-            <CardHeader>
-              <CardTitle>{similar.vehicleType}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>Interior Condition: {similar.interiorCondition}</p>
-              <p>Exterior Condition: {similar.exteriorCondition}</p>
-              <p>Estimated Price: ${similar.estimatedPrice.toFixed(2)}</p>
-              {similar.actualPrice && (
-                <p>Actual Price: ${similar.actualPrice.toFixed(2)}</p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Similar Assessments</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {similarAssessments && similarAssessments.length > 0 ? (
+          <ul className="space-y-2">
+            {similarAssessments.map((sim) => (
+              <li key={sim.id} className="p-4 border rounded-md">
+                <p><strong>Vehicle Type:</strong> {sim.vehicleType}</p>
+                <p><strong>Cleanliness Level:</strong> {sim.cleanlinessLevel}</p>
+                <p><strong>Total Price:</strong> ${sim.totalPrice}</p>
+                <p><strong>Date:</strong> {new Date(sim.date).toLocaleDateString()}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No similar assessments found.</p>
+        )}
+      </CardContent>
+    </Card>
   )
 }

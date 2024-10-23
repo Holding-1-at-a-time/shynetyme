@@ -42,7 +42,7 @@ describe('PricingDashboard Integration', () => {
   });
 
   it('updates pricing model when form is submitted', async () => {
-    const mockUpdatePricingModel = jest.fn();
+    const mockUpdatePricingModel = jest.fn().mockResolvedValueOnce(undefined);
     require('convex/react').useMutation.mockReturnValue(mockUpdatePricingModel);
 
     render(
@@ -58,8 +58,53 @@ describe('PricingDashboard Integration', () => {
       expect(mockUpdatePricingModel).toHaveBeenCalledWith(expect.objectContaining({
         basePrice: expect.objectContaining({ sedan: 60 }),
       }));
+      expect(screen.getByText('Pricing model updated successfully.')).toBeInTheDocument();
     });
   });
 
-  // Add more integration tests as needed
+  it('handles error when updating pricing model fails', async () => {
+    const mockUpdatePricingModel = jest.fn().mockRejectedValueOnce(new Error('Update failed'));
+    require('convex/react').useMutation.mockReturnValue(mockUpdatePricingModel);
+
+    render(
+      <ConvexProvider client={mockConvexClient}>
+        <PricingDashboard />
+      </ConvexProvider>
+    );
+
+    fireEvent.change(screen.getByLabelText('Sedan Base Price'), { target: { value: '60' } });
+    fireEvent.click(screen.getByText('Save Changes'));
+
+    await waitFor(() => {
+      expect(mockUpdatePricingModel).toHaveBeenCalledWith(expect.objectContaining({
+        basePrice: expect.objectContaining({ sedan: 60 }),
+      }));
+      expect(screen.getByText('Failed to update pricing model. Please try again.')).toBeInTheDocument();
+    });
+  });
+
+  it('fetches and displays AI recommendations', async () => {
+    const mockInsights = {
+      recommendations: [
+        "Decrease SUV surcharge to remain competitive in your region",
+        "Add an extra charge for vehicles larger than 7 seats",
+        "Increase your base price for luxury vehicles by 5%"
+      ],
+      trendAnalysis: {}
+    };
+
+    require('convex/react').useAction.mockResolvedValueOnce(mockInsights);
+
+    render(
+      <ConvexProvider client={mockConvexClient}>
+        <PricingDashboard />
+      </ConvexProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Decrease SUV surcharge to remain competitive in your region")).toBeInTheDocument();
+      expect(screen.getByText("Add an extra charge for vehicles larger than 7 seats")).toBeInTheDocument();
+      expect(screen.getByText("Increase your base price for luxury vehicles by 5%")).toBeInTheDocument();
+    });
+  });
 });

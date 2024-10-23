@@ -10,6 +10,7 @@ import { PricingInputSection } from './PricingInputSection'
 import { AnalyticsSection } from './AnalyticsSection'
 import { AiRecommendationsPanel } from './AiRecommendationsPanel'
 import logger from '@/lib/logger'
+import { toast } from '@/components/ui/use-toast'
 
 interface PricingModel {
   basePrice: {
@@ -106,23 +107,45 @@ export function PricingDashboard() {
   }, [getPricingAccuracy])
 
   const handleSaveChanges = async () => {
+    setIsLoading(true)
     try {
       await updatePricingModel(pricingModel)
-      logger.info('Pricing model updated', { pricingModel });
-      // Show success message using toast
+      logger.info('Pricing model updated', { pricingModel })
+      toast({
+        title: "Success",
+        description: "Pricing model updated successfully.",
+      })
     } catch (error) {
-      logger.error('Error updating pricing model', { error });
-      // Show error message using toast
+      logger.error('Error updating pricing model', { error })
+      toast({
+        title: "Error",
+        description: "Failed to update pricing model. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const handleApplyRecommendation = async (recommendation: string) => {
-    // Implement logic to apply the recommendation
-    // This might involve updating the pricing model
-    console.log(`Applying recommendation: ${recommendation}`)
-    // After applying the recommendation, refetch the insights
-    const updatedInsights = await getPredictivePricingInsights()
-    setInsights(updatedInsights)
+    try {
+      // Implement logic to apply the recommendation
+      console.log(`Applying recommendation: ${recommendation}`)
+      // After applying, refetch the insights
+      const updatedInsights = await getPredictivePricingInsights()
+      setInsights(updatedInsights)
+      toast({
+        title: "Recommendation Applied",
+        description: "The recommendation has been applied successfully.",
+      })
+    } catch (error) {
+      logger.error('Failed to apply recommendation', { error })
+      toast({
+        title: "Error",
+        description: "Failed to apply recommendation. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   return (
@@ -139,7 +162,7 @@ export function PricingDashboard() {
             />
             <AnalyticsSection analytics={accuracy} />
           </div>
-          <Button onClick={handleSaveChanges} className="mt-4">Save Changes</Button>
+          <Button onClick={handleSaveChanges} className="mt-4 w-full md:w-auto">Save Changes</Button>
         </CardContent>
       </Card>
       
